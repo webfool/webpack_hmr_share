@@ -8,11 +8,15 @@ const express = require('express')
 const http = require('http')
 const webpackDevMiddleware = require('../webpack-dev-middleware')
 const WebsocketServer = require('socket.io')
+const updateCompiler = require('./utils/updateCompiler')
 
 class Server {
   constructor(compiler, devServerOptions) {
     this.compiler = compiler
     this.devServerOptions = devServerOptions
+
+    // 为浏览器打包代码中注入热更新相关的代码
+    updateCompiler(compiler)
 
     this.sockets = []
     this.setupHooks()
