@@ -15,11 +15,24 @@ class Server {
     this.devServerOptions = devServerOptions
 
     this.sockets = []
+    this.setupHooks()
 
     this.setupApp()
     this.setupDevMiddleware()
     this.createServer()
     this.createSocketServer()
+  }
+
+  // 监听 webpack 的编译完成事件，将最新的 hash 通知给浏览器端
+  setupHooks() {
+    this.compiler.hooks.done.tap('webpack-dev-server', (stats) => {
+      console.log('stats hash ->', stats.hash)
+      this.sockets.forEach((socket) => {
+        socket.emit('hash', stats.hash)
+        socket.emit('ok')
+      })
+      this.stats = stats
+    })
   }
 
   setupApp() {

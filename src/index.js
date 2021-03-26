@@ -4,6 +4,7 @@ function render() {
 }
 
 render()
+console.log('aaa')
 
 if (module.hot) {
   module.hot.accept(['./title'], function() {
