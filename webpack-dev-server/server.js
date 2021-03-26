@@ -7,15 +7,19 @@
 const express = require('express')
 const http = require('http')
 const webpackDevMiddleware = require('../webpack-dev-middleware')
+const WebsocketServer = require('socket.io')
 
 class Server {
   constructor(compiler, devServerOptions) {
     this.compiler = compiler
     this.devServerOptions = devServerOptions
 
+    this.sockets = []
+
     this.setupApp()
     this.setupDevMiddleware()
     this.createServer()
+    this.createSocketServer()
   }
 
   setupApp() {
@@ -35,6 +39,25 @@ class Server {
 
   createServer() {
     this.server = http.createServer(this.app)
+  }
+
+  // 创建 socket 服务
+  createSocketServer() {
+    const io = WebsocketServer(this.server)
+    io.on('connection', (socket) => {
+      console.log('client connected')
+      this.sockets.push(socket)
+
+      socket.on('disconnect', () => {
+        const index = this.sockets.indexOf(socket)
+        this.sockets.splice(index, 1)
+      })
+
+      if (this.stats) {
+        socket.emit('hash', this.stats.hash)
+        socket.emit('ok')
+      }
+    })
   }
 
   listen(port, host, callback = () => {}) {
