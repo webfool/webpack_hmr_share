@@ -1,0 +1,11 @@
+- 服务器启动
+  - 配置 webpack 输出到内存中
+  - 配置服务器中间件，将请求导向内存资源中
+- 服务器和浏览器通信
+  - 配置 websocket，缓存接入的 socket
+  - 在 webpack 打包资源文件中加入 websocket 通信文件和补丁文件
+  - 监听 webpack 的 compiler.hooks.done 事件，将更新通知到浏览器
+- 浏览器打补丁
+  - 监听 socket，通过 xhr 发起请求获取更新列表文件 main.[hash].hot-update.json
+  - 根据更新列表文件，通过 jsonp 的方式请求 main.[hash].hot-update.js 文件
+  - 定义全局 self['webpackHotUpdate'] 方法，获取到最新变化的模块数据并更新
